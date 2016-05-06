@@ -1,0 +1,23 @@
+@charset "utf-8";
+/* CSS Document */
+*{margin:0; padding:0;}
+img{border:0;}
+ul li{ list-style:none;}
+em,i{ font-style:normal;}
+table{ border-collapse:collapse; border-spacing:0;}
+.clear:after{ height:0; content:""; clear:both; display:block; visibility:hidden; overflow:hidden;}
+.clear{zoom:0; clear:both;}
+a:link,a:visited{ color:#606060; text-decoration:none;}
+a:hover,a:active{color:#606060; text-decoration:underline;}
+body{ font-size:12px; font-family:"微软雅黑"; margin:auto;}
+/**文字排版**/
+.tl{text-align:left;}
+.tc{text-align:center;}
+.tr{text-align:right;}
+
+/**躯干**/
+.main{
+	min-width:1300px;
+	min-height:580px;
+	overflow:hidden;
+}

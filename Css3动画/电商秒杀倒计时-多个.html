@@ -1,0 +1,107 @@
+﻿<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title></title>
+    <style>
+        #time1 b {
+            color: red;
+        }
+
+        #time2 b {
+            color: green;
+        }
+        #time3 b {
+            color: #f70;
+        }
+    </style>
+</head>
+<body>
+    <p id="time1"></p>
+    <p id="time2"></p>
+    <p id="time3"></p>
+    <script>
+        function TimeDown(id, beginDate, endDate, fn, realDate) {
+            this.id = id;
+            this.dom = document.getElementById(id);
+            this.begin = beginDate || new Date();
+            this.end = endDate || new Date();
+            this.callback = fn || null;
+            this.realDate = realDate || null;
+            this.timerId = null;
+            this.days = 0;
+            this.month = 0;
+            this.year = 0;
+            this.modulo = 0;
+            this.hours = 0;
+            this.minutes = 0;
+            this.seconds = 0;
+            this.totalSeconds = 0;
+            this.init();
+        }
+
+        TimeDown.prototype = {
+            init: function () {
+                var self = this;
+                function timerShow() {
+                    var now = new Date(), nowDate = new Date(now.getFullYear(), now.getMonth() + 1, now.getDate(), now.getHours(), now.getMinutes(), now.getSeconds());
+                    if (self.realDate) nowDate = self.realDate;
+
+                    if (nowDate.getTime() <= self.begin.getTime()) {
+                        if (self.timerId) {
+                            clearInterval(self.timerId);
+                        }
+                        throw new Error('开始时间未到');
+                    }
+
+                    self.totalSeconds = parseInt((self.end.getTime() - nowDate.getTime()) / 1000); //相差的总秒数
+                    if (self.totalSeconds <= 0) {
+                        if (self.timerId) {
+                            clearInterval(self.timerId);      
+                        }
+                        throw new Error('结束时间不能大于开始时间');
+                    }
+
+                    self.days = ~~(self.totalSeconds / 60 / 60 / 24); //天
+                    //self.month = 0; //~~(self.days / 30); //暂未开放
+                    //self.year = 0; //self.days <= 366 ? 0 : ~~(self.days / 365); //暂未开放
+                    self.modulo = self.totalSeconds % (60 * 60 * 24);
+                    self.hours = self.getZoreStr(~~(self.modulo / (60 * 60))); //小时
+                    self.modulo = self.modulo % (60 * 60);
+                    self.minutes = self.getZoreStr(~~(self.modulo / 60)); //分钟
+                    self.seconds = self.getZoreStr(~~(self.modulo % 60)); //秒
+
+                    if (self.getType(self.callback) === 'string' || self.getType(self.callback) === 'undefined') {
+                        var html = self.callback || '剩余时间：{y}年 {mm}月 {d}天 {h}小时 {m}分 {s}秒';
+                        html = html.replace('{y}', self.year).replace('{mm}', self.month).replace('{d}', self.getZoreStr(self.days)).replace('{h}', self.hours).replace('{m}', self.minutes).replace('{s}', self.seconds);
+                        self.dom.innerHTML = html;
+                    }
+
+                    if (self.getType(self.callback) === 'function') {
+                        self.callback.call(this, self.dom, self.year, self.month, self.getZoreStr(self.days), self.hours, self.minutes, self.seconds);
+                    }
+                }
+
+                this.timerId = setInterval(timerShow, 1000);
+            }, getType: function (obj) {
+                return obj === null ? "null" : obj === undefined ? "undefined" : Object.prototype.toString.call(obj).slice(8, -1).toLowerCase();
+            }, getZoreStr: function (n) {
+                n = n + '';
+                return new Array(2 - n.length + 1).join('0') + n;
+            }
+        };
+
+        var td1 = new TimeDown('time1', new Date(2015, 3, 5, 9, 0, 0), new Date(2016, 4, 20, 16, 0, 0), function (dom, y, mm, d, h, m, s) {
+            dom.innerHTML = '距离 2015年4月20日16点 还有：<b>' + d + '</b>天 <b>' + h + '</b>小时 <b>' + m + '</b>分 <b>' + s + '</b>秒';
+        });
+
+        var td2 = new TimeDown('time2', new Date(2015, 3, 3, 9, 0, 0), new Date(2016, 4, 2, 12, 30, 50), function (dom, y, mm, d, h, m, s) {
+            dom.innerHTML = '距离 2015年4月2日12点30分50秒 还有：<b>' + d + '</b>天 <b>' + h + '</b>小时 <b>' + m + '</b>分 <b>' + s + '</b>秒';
+        });
+
+        var td3 = new TimeDown('time3', new Date(2015, 3, 3, 9, 0, 0), new Date(2016, 5, 14, 8, 25, 12), function (dom, y, mm, d, h, m, s) {
+            dom.innerHTML = '距离 2015年5月14日8点25分12秒 还有：<b>' + d + '</b>天 <b>' + h + '</b>小时 <b>' + m + '</b>分 <b>' + s + '</b>秒';
+        });
+    </script>
+</body>
+</html>
